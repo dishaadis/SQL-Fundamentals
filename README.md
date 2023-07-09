@@ -20,4 +20,8 @@ Entity Relationship Diagram (ERD) in context is used to model the database struc
 <p align="justify">
 Apart from entities and attributes, relationships between tables are also represented in the ERD. This relationship shows how data in one table relates to data in another. Several types of relationships are common in ERD, such as one-to-one, one-to-many, and many-to-many relationships. This relationship is expressed using arrows and lines connecting the relevant columns between the tables. ERD in SQL is very important in the database design stage because it helps visually describe data structures and provides guidance in building database schemas or schemas. In addition, ERD can also assist in understanding and communication between development team members and other stakeholders. By using ERD, all parties can easily understand the structure and data relations that will be implemented in the database.
 </p>
+<div align="center">
+  
+ ![ERD RakaFood](https://github.com/dishaadis/SQL-Fundamentals/assets/82490582/80dd1946-9ea9-4dd8-b694-a732f59d8719)
 
+</div>
