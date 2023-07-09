@@ -1,0 +1,233 @@
+-- SQL Fundamentals --
+
+--1. CREATE Function
+--------------------
+
+--Create table rakamin_customer
+create table if not exists public.rakamin_customer (
+	id_pelanggan integer,
+	nama character varying,
+	email character varying,
+	telepon character varying,
+	umur integer,
+	bulan_lahir character varying,
+	tanggal_registrasi date,
+	konfirmasi_telepon integer,
+	penipu integer,
+	pengguna_aktif integer,
+	primary key ("id_pelanggan")
+);
+
+--Create table rakamin_customer_address
+create table if not exists public.rakamin_customer_address (
+	id_alamat integer,
+	id_pelanggan integer,
+	alamat character varying,
+	kota character varying,
+	provinsi character varying,
+	primary key ("id_alamat")
+);
+
+--Create table rakamin_merchant
+create table if not exists public.rakamin_merchant (
+	id_merchant integer,
+	nama_merchant character varying,
+	tanggal_registrasi date,
+	primary key ("id_merchant")
+);
+
+--Create table rakamin_order
+create table if not exists public.rakamin_order (
+	id_order integer,
+	id_pelanggan integer,
+	id_merchant integer,
+	tanggal_pembelian date,
+	kuantitas integer,
+	harga integer,
+	ppn double precision,
+	bayar_cash integer,
+	metode_bayar character varying,
+	primary key ("id_order")
+);
+
+--2. SELECT Function
+---------------------
+
+--Create a table with a copy of another table
+create table if not exists rakamin_customer_copy as 
+select * from rakamin_customer;
+select * from rakamin_customer_copy;
+
+--Takes all columns in the rakamin_merchant table
+select * 
+from rakamin_merchant;
+
+--Takes multiple columns in the rakamin_merchant table.
+select nama_merchant, tanggal_registrasi
+from rakamin_merchant;
+
+--3. LIMIT Function
+--------------------
+
+--Takes 3 rows from the rakamin_merchant table.
+select * 
+from rakamin_merchant
+limit 3;
+
+--Takes rows 4-6 from the rakamin_merchant table.
+select * 
+from rakamin_merchant
+limit 3 offset 3;
+
+--4. WHERE Function
+--------------------
+
+--Do a filter on customers who are 17 years old
+select * 
+from rakamin_customer
+where umur = 17;
+
+--Do a filter on customers born in August
+select * 
+from rakamin_customer
+where bulan_lahir = 'Agustus';
+
+--Change lowercase and uppercase
+select nama, lower(nama), upper(nama)
+from rakamin_customer;
+
+--Do a filter on customers who registered on 2012-02-15
+select * 
+from rakamin_customer
+where tanggal_registrasi = '2012-02-15';
+
+--Do a filter on null data
+select * 
+from rakamin_customer
+where nama is null;
+
+--Do a filter on data that is not null
+select * 
+from rakamin_customer
+where nama is not null;
+
+--5. ORDER BY Function
+-----------------------
+
+--Sort column nama A-Z
+select *
+from rakamin_customer 
+order by nama;
+
+select *
+from rakamin_customer 
+order by nama asc;
+
+--Sort column nama Z-A
+select *
+from rakamin_customer 
+order by nama desc;
+
+--Search for people with the same name
+select nama, count(1)
+from rakamin_customer
+group by 1
+order by 2 desc, 1;
+
+--Sort other data
+select nama, email
+from rakamin_customer
+order by nama, email;
+
+--Sort numbers
+select *
+from rakamin_customer
+order by umur;
+
+--6. Arithmetic Operation
+--------------------------
+
+--Addition operation
+select id_pelanggan, harga, harga + 10000 as harga_new
+from rakamin_order;
+
+--subtraction operation
+select id_pelanggan, harga, harga - 10000 as harga_new
+from rakamin_order;
+
+--Multiplication operation
+select id_pelanggan, harga, harga * 10000 as harga_new
+from rakamin_order;
+
+--Division operation
+select id_pelanggan, harga, harga / 10000 as harga_new
+from rakamin_order;
+
+--Arithmetic operations between columns
+select id_pelanggan, harga, kuantitas, harga * kuantitas as harga_new
+from rakamin_order;
+
+--7. INSERT Function
+---------------------
+
+create table if not exists rakamin_merchant_active(
+	merchant_id integer primary key not null, 
+	merchant_name character varying unique, 
+	active boolean not null
+);
+
+--Input data
+insert into rakamin_merchant_active (merchant_id, merchant_name, active)
+values (1, 'merchant_1', TRUE);
+select * from rakamin_merchant_active;
+
+--Input some data
+insert into rakamin_merchant_active 
+values 
+	(2, 'merchant_2', TRUE),
+	(3, 'merchant_3', FALSE),
+	(4, 'merchant_4', TRUE);
+select * from rakamin_merchant_active;
+
+--Just fill in some fields
+insert into rakamin_merchant_active(merchant_id, active)
+values (5,TRUE);
+select * from rakamin_merchant_active;
+
+insert into rakamin_merchant_active
+values (6,NULL,TRUE);
+select * from rakamin_merchant_active;
+
+--8. UPDATE Function
+---------------------
+
+--Update merchant_id = 4 to false in the active column
+select * from rakamin_merchant_active;
+update rakamin_merchant_active
+set active = false
+where merchant_id = 4;
+select * from rakamin_merchant_active;
+
+---Update the merchant_name column
+update rakamin_merchant_active
+set active = false, merchant_name = 'merchan_1'
+where merchant_id = 1;
+select * from rakamin_merchant_active;
+
+update rakamin_merchant_active
+set active = true, merchant_name = 'merchant_1'
+where merchant_id = 1;
+select * from rakamin_merchant_active;
+
+--9. DELETE Function
+---------------------
+
+--Delete rows in rakamin_merchant_active table that have null
+select * from rakamin_merchant_active;
+delete from rakamin_merchant_active
+where merchant_id in (5,6);
+select * from rakamin_merchant_active;
+
+--Delete all rows
+delete from rakamin_customer_copy;
+select * from rakamin_customer_copy;
