@@ -232,6 +232,47 @@ select * from rakamin_merchant_active;
 delete from rakamin_customer_copy;
 select * from rakamin_customer_copy;
 
+--10. Common Table Expressions
+-------------------------------
+--Customer data with a total expenditure of > 50k
+select *
+from 
+(
+	select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+) tmp
+left join rakamin_customer rc
+on tmp.id_pelanggan = rc.id_pelanggan
+order by total_transaksi
+
+--Use with as Function
+with 
+tmp as
+(
+	select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+),
+tmp2 as
+(
+	select * from rakamin_customer
+	where pengguna_aktif = 1
+),
+temp_table as
+(
+)
+select *
+from tmp
+left join rakamin_customer rc on tmp.id_pelanggan = rc.id_pelanggan
+join temp2 on tmp2.id_pelanggan = tmp.id_pelangggan
+
 --Study Cases
 --------------
 
