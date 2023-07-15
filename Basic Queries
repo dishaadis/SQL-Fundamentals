@@ -231,3 +231,90 @@ select * from rakamin_merchant_active;
 --Delete all rows
 delete from rakamin_customer_copy;
 select * from rakamin_customer_copy;
+
+--Study Cases
+--------------
+
+--Displays the unique city of RakaFood customers
+-------------------------------------------------
+select distinct kota 
+from rakamin_customer_address;
+--or
+select kota 
+from rakamin_customer_address
+group by kota
+
+--Displays the ten most recent transaction rows from the rakamin_order table
+-----------------------------------------------------------------------------
+select * from rakamin_order 
+order by tanggal_pembelian desc 
+limit 10;
+
+--Displays customer data detected as fraudsters at RakaFood
+------------------------------------------------------------
+select * 
+from rakamin_customer
+where penipu = 1;
+
+--Displays customer data that has the largest number of transactions using the shopeepay payment method
+---------------------------------------------------------------------------------------------------------
+select *, kuantitas*harga + ppn*kuantitas*harga as jumlah_transaksi
+from rakamin_order
+where metode_bayar = 'shopeepay'
+order by jumlah_transaksi desc;
+--or
+select *
+from rakamin_order
+where metode_bayar = 'shopeepay'
+order by harga desc;
+--or
+select *
+from rakamin_order
+where metode_bayar ilike 'shopeepay'
+order by harga desc;
+
+--Create a new table named rakamin_customer_address_tangerang 
+--which contains table data for the special rakamin_customer_address in Tangerang.
+-----------------------------------------------------------------------------------
+create table rakamin_customer_address_tangerang as
+select * from rakamin_customer_address
+where kota = 'Tangerang';
+select *
+from rakamin_customer_address_tangerang;
+
+--Update the rakamin_customer_address_tangerang table. 
+--The province column for Tangerang City should be Banten (not West Java). 
+--A customer with id_customer ten should have an address in Karawaci (not Daan Mogot).
+---------------------------------------------------------------------------------------
+update rakamin_customer_address_tangerang
+set provinsi = 'Banten';
+update rakamin_customer_address_tangerang
+set alamat = 'Karawaci'
+where id_pelanggan = 10;
+select *
+from rakamin_customer_address_tangerang;
+
+--Add data to the rakamin_customer_address_tangerang table
+------------------------------------------------------------
+insert into rakamin_customer_address_tangerang (
+	id_alamat, 
+	id_pelanggan, 
+	alamat, 
+	kota, 
+	provinsi
+)
+values (
+	101,70, 
+	'Ciledug', 
+-- 	'Tangerang', 
+	'Banten'
+);
+select * 
+from rakamin_customer_address_tangerang;
+
+--Delete invalid data in the rakamin_customer_address_tangerang table.
+--At id_address = 54 is invalid data and wrong input.
+-----------------------------------------------------------------------
+delete from rakamin_customer_address_tangerang
+where id_alamat = 54;
+select *
