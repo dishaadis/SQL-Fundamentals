@@ -1,1 +1,274 @@
+-- Complex Queries --
 
+--1. Alias
+-----------
+select *
+from rakamin_customer;
+
+select
+	case when umur <= 12 then 'anak-anak'
+		 when umur <= 18 then 'remaja'
+		 when umur <= 50 then 'dewasa'
+		 else 'lansia'
+	end as grup_umur,
+	sum(case when pengguna_aktif = 1 then 1 else 0 end) as total_pengguna_aktif,
+	sum(case when pengguna_aktif = 0 then 1 else 0 end) as total_pengguna_tidak_aktif
+from rakamin_customer
+group by 1;
+
+--Another way
+select
+	case when umur <= 12 then 'anak-anak'
+		 when umur <= 18 then 'remaja'
+		 when umur <= 50 then 'dewasa'
+		 else 'lansia'
+	end as grup_umur,
+	sum(pengguna_aktif) as total_pengguna_aktif,
+	sum(case when pengguna_aktif = 0 then 1 else 0 end) as total_pengguna_tidak_aktif
+from rakamin_customer as rc
+group by 1;
+
+--2. Subquery : FROM, WHERE
+----------------------------
+--Using the FROM function
+select nama, email
+from
+(
+	select nama, email, telepon umur 
+	from rakamin_customer
+	where pengguna_aktif = 1
+) as subq
+where nama like 'F%'
+--Customers based on providers with total_customer > 20
+--Using the HAVING function
+select 
+	case when telepon like '62852%' then 'telkomsel'
+ 	  when telepon like '62878%' then 'xl'
+ 	  when telepon like '62896%' then '3'
+	  else 'lainnya'
+	end provider,
+	count(1)
+from rakamin_customer
+group by 1
+having count(1) > 20
+--Customers based on providers with total_customer > 20
+--without using the having function
+select *
+from 
+	(select 
+		case when telepon like '62852%' then 'telkomsel'
+		  when telepon like '62878%' then 'xl'
+		  when telepon like '62896%' then '3'
+		  else 'lainnya'
+		end provider,
+		count(1) total_customer
+	from rakamin_customer
+	group by 1) subq
+where total_customer > 20;
+--Using the WHERE function
+--Looking for paying customers at KFC
+select * from rakamin_order;
+select * from rakamin_merchant;
+select distinct id_pelanggan
+from rakamin_order
+where id_merchant = 5;
+--subquery where
+select * 
+from rakamin_customer
+where id_pelanggan in(
+	select id_pelanggan
+	from rakamin_order
+	where id_merchant = 5
+)
+--Remove the oldest customer data
+select *
+from rakamin_customer
+where umur = (select max(umur) from rakamin_customer);
+
+--3. Join
+-----------
+--Inner join table rakamin_customer_address and rakamin_customer
+select nama, telepon, email, alamat
+from rakamin_customer
+join rakamin_customer_address 
+on rakamin_customer.id_pelanggan = rakamin_customer_address.id_pelanggan
+where telepon like '62852%'
+--use of the ALIAS function
+select 
+	rc.id_pelanggan,
+	rc.nama, 
+	rc.telepon, 
+	rc.email, 
+	rca.alamat
+from rakamin_customer as rc
+join rakamin_customer_address  as rca
+on rc.id_pelanggan = rca.id_pelanggan
+where telepon like '62852%'
+--Using the LEFT JOIN function
+select 
+	rc.id_pelanggan,
+	rc.nama, 
+	rc.telepon, 
+	rc.email, 
+	rca.alamat,
+	ro.tanggal_pembelian
+from rakamin_customer as rc
+join rakamin_customer_address  as rca
+	on rc.id_pelanggan = rca.id_pelanggan
+left join rakamin_order as ro
+	on rc.id_pelanggan = ro.id_pelanggan
+where telepon like '62852%' 
+--Using the INNER JOIN function
+select 
+	rc.nama,
+	ro.tanggal_pembelian
+from rakamin_customer rc
+join rakamin_order ro on rc.id_pelanggan = ro.id_pelanggan
+where telepon like '62852%'
+--Using the LEFT JOIN function
+select 
+	rc.nama,
+	ro.tanggal_pembelian
+from rakamin_customer rc
+left join rakamin_order ro on rc.id_pelanggan = ro.id_pelanggan
+where telepon like '62852%'
+--Using the RIGHT JOIN function
+select 
+	rc.nama,
+	ro.tanggal_pembelian
+from rakamin_customer rc
+right join rakamin_order ro on rc.id_pelanggan = ro.id_pelanggan
+where telepon like '62852%'
+--Right Join to Left join
+select 
+	rc.nama,
+	ro.tanggal_pembelian
+from rakamin_order ro
+left join rakamin_customer rc on rc.id_pelanggan = ro.id_pelanggan
+where telepon like '62852%'
+--Retrieving customer data whose total spending is > 50k
+--Using HAVING functin
+select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+from rakamin_order
+group by (1)
+having sum(harga) > 50000
+--Using WHERE function
+select *
+from (
+	select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1) 
+)as tmp
+where total_transaksi > 50000
+--Retrieve the data by left join the rakamin_customer table
+select 
+	rc.id_pelanggan,rc.nama, rc.email, tmp.total_transaksi
+from 
+(
+	select 
+		id_pelanggan,
+		sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+) tmp
+left join rakamin_customer rc on tmp.id_pelanggan = rc.id_pelanggan 
+
+--Retrieve the data by joining the rakamin_customer table
+select 
+	rc.id_pelanggan,rc.nama, rc.email, tmp.total_transaksi
+from rakamin_customer rc
+join 
+(
+	select 
+		id_pelanggan,
+		sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+) tmp
+on tmp.id_pelanggan = rc.id_pelanggan 
+
+--Other Join cases
+select rc.nama, ro.tanggal_pembelian
+from rakamin_customer rc
+left join rakamin_order ro on rc.id_pelanggan = ro.id_pelanggan
+where ro.tanggal_pembelian is null
+
+--Create the ovo_users table
+create table ovo_users as
+select id_pelanggan, avg(harga) as avg_ovo_trx
+from rakamin_order
+where metode_bayar = 'ovo'
+group by(1)
+--Create the gopay_users table
+create table gopay_users as
+select id_pelanggan, avg(harga) as avg_gopay_trx
+from rakamin_order
+where metode_bayar = 'gopay'
+group by(1)
+--Use of full outer joins
+select *
+from ovo_users o
+full outer join gopay_users g on o.id_pelanggan= g.id_pelanggan
+--to be more effective full outer join
+select 
+	coalesce(o.id_pelanggan, g.id_pelanggan),
+	o.avg_ovo_trx,
+	g.avg_gopay_trx
+from ovo_users o
+full outer join gopay_users g on o.id_pelanggan= g.id_pelanggan
+where o.avg_ovo_trx is null or g.avg_gopay_trx
+--The case when the full outer join has a hole in the middle
+select 
+	coalesce(o.id_pelanggan, g.id_pelanggan),
+	o.avg_ovo_trx,
+	g.avg_gopay_trx
+from ovo_users o
+full outer join gopay_users g on o.id_pelanggan= g.id_pelanggan
+where o.avg_ovo_trx is null or g.avg_gopay_trx
+
+--4. Common table expressions
+------------------------------
+--Customer data with a total expenditure of > 50k
+select *
+from 
+(
+	select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+) tmp
+left join rakamin_customer rc
+on tmp.id_pelanggan = rc.id_pelanggan
+order by total_transaksi
+
+--Using WITH AS function
+with 
+tmp as
+(
+	select 
+	id_pelanggan,
+	sum(harga) as total_transaksi
+	from rakamin_order
+	group by (1)
+	having sum(harga) > 50000
+),
+tmp2 as
+(
+	select * from rakamin_customer
+	where pengguna_aktif = 1
+),
+temp_table as
+(
+)
+select *
+from tmp
+left join rakamin_customer rc on tmp.id_pelanggan = rc.id_pelanggan
+join temp2 on tmp2.id_pelanggan = tmp.id_pelangggan
