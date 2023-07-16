@@ -1,1 +1,246 @@
+-- Simple Queries --
 
+--1. Filtering Operator
+------------------------
+select * 
+from rakamin_customer;
+--Inactive users
+select nama, email, telepon, pengguna_aktif
+from rakamin_customer
+where pengguna_aktif != 1;
+--Users who do not confirm the phone
+select nama, email, telepon, konfirmasi_telepon
+from rakamin_customer
+where konfirmasi_telepon <> 1;
+--Users whose age is >= 30
+select nama, email, telepon, umur
+from rakamin_customer
+where umur >= 30
+order by umur;
+--Users whose age is < 30
+select nama, email, telepon, umur
+from rakamin_customer
+where umur < 30
+order by umur desc;
+--Users who have email >b
+select nama, email, telepon, umur
+from rakamin_customer
+where email > 'b'
+order by email;
+
+--2. Logical Operator 
+----------------------
+select * 
+from rakamin_customer;
+--Customers suspected of fraud and active users
+select * 
+from rakamin_customer
+where penipu = true and pengguna_aktif = true;
+--Customers suspected of fraud or active users
+select * 
+from rakamin_customer
+where penipu = true or pengguna_aktif = true;
+--Customers who is around 20 years old
+select *
+from rakamin_customer
+where umur >= 20 and umur < 30
+order by umur;
+--Customer born in June or July
+select *
+from rakamin_customer
+where bulan_lahir = 'Juni' or bulan_lahir = 'Juli' or bulan_lahir = 'Agustus';
+--Customers whose registration date is 2013 and above and born in June or July
+select *
+from rakamin_customer
+where tanggal_registrasi > '2013-01-01' 
+and (bulan_lahir = 'Juni' or bulan_lahir = 'Juli')
+order by tanggal_registrasi;
+--Customers who weren't born in December
+select *
+from rakamin_customer
+where not bulan_lahir = 'Desember';
+--Customers who is not around 20 years old
+select *
+from rakamin_customer
+where not (umur > 19 and umur <30)
+order by umur; 
+
+--3. Advenced Filtering
+-------------------------
+--Use of in Function
+--Customers born in June, July, August
+select *
+from rakamin_customer
+where bulan_lahir in ('Juni','Juli','Agustus')
+order by bulan_lahir;
+--Use of the lower function
+select *
+from rakamin_customer
+where lower(bulan_lahir) in ('juni','juli','agustus');
+--Use of the like function
+--Customers using gmail.com
+select nama, email
+from rakamin_customer
+where email like '%gmail.com'
+--Customer whose cellphone number starts with 62852 (Telkomsel provider)
+select * 
+from rakamin_customer
+where telepon like '62852%';
+--Using the between function
+--Customers aged 20-29
+select *
+from rakamin_customer
+where umur between 20 and 29
+order by umur;
+--Customer yang tanggal resgitrasinya 2013-01-01 sampai 2013-01-31
+select *
+from rakamin_customer
+where tanggal_registrasi between '2013-01-01' and '2013-01-31'
+order by umur;
+
+--4. Case When Function
+------------------------
+--Customer yang provider telkomsel dan mengkategorikan pada grup umur
+select nama, email, telepon, umur ,
+case when umur between 1 and 20 then 'anak'
+	 when umur between 21 and 70 then 'bapak'
+	 when umur between 71 and 100 then 'kakek'
+end as grup_umur
+from rakamin_customer
+where telepon 
+like '62852%';
+--Another way
+select nama, email, telepon, umur ,
+case when umur <= 20 then 'anak'
+	 when umur between 21 and 70 then 'bapak'
+	 when umur >=70 then 'kakek'
+end as grup_umur
+from rakamin_customer
+where telepon 
+like '62852%';
+--Another way
+select nama, email, telepon, umur ,
+case when umur <= 20 then 'anak'
+	 when umur <= 70 then 'bapak'
+	 else 'kakek'
+end as grup_umur
+from rakamin_customer
+where telepon 
+like '62852%';
+--Customer provider name
+select telepon,
+case when telepon like '62852%' then 'telkomsel'
+	 when telepon like '62878%' then 'xl'
+	 when telepon like '62896%' then '3'
+	 else 'lainnya'
+end as provider
+from rakamin_customer
+
+--5. Aggregation Function
+-------------------------
+--Counting the number of costumers / calculating the number of rows in the table
+select count(1)
+from rakamin_customer;
+select count(*)
+from rakamin_customer;
+--calculates the number of non-null data per column
+select 
+	count(1) as total_baris_customer,
+	count (nama) as total_baris_nama,
+	count(bulan_lahir) as total_bulan_nonull
+from rakamin_customer;
+--Use of the as function
+select nama as nama_lengkap
+from rakamin_customer
+--Use of distinct functions
+select 
+	count(1) as total_baris_customer,
+	count (nama) as total_baris_nama,
+	count(distinct bulan_lahir) as total_bulan_unik,
+	count(distinct penipu) as penipu
+from rakamin_customer;
+--min() function usage
+select min(umur) as umur_termuda
+from rakamin_customer;
+select min(tanggal_registrasi) as regis_tertua
+from rakamin_customer;
+select min(nama) as min_nama
+from rakamin_customer;
+--max() function usage
+select max(umur) as umur_tertua
+from rakamin_customer;
+select max(tanggal_registrasi) as regis_terbaru
+from rakamin_customer;
+select max(nama) as max_nama
+from rakamin_customer;
+--avg() function usage
+select round(avg(umur),2) as avg_umur
+from rakamin_customer;
+--sum() function usage
+select sum(harga) as total_harga
+from rakamin_order;
+
+--6. Gruping : GROUP BY Function
+----------------------------------
+--Total customers born per month
+select 
+	bulan_lahir, 
+	count(1) as total
+from rakamin_customer
+group by bulan_lahir;
+--
+Total active users
+select 
+	pengguna_aktif,
+	count(1) as total
+from rakamin_customer
+group by 1;
+--Total customers who have Telkomsel and XL providers
+select 
+	case when telepon like '62852%' then 'telkomsel'
+		 when telepon like '62878%' then 'xl'
+		 when telepon like '62896%' then '3'
+		 else 'lainnya'
+	end as provider,
+	count(1) as total
+from rakamin_customer
+group by 1;
+--Total active customers who have Telkomsel and XL providers by month
+select 
+	case when telepon like '62852%' then 'telkomsel'
+		 when telepon like '62878%' then 'xl'
+		 when telepon like '62896%' then '3'
+		 else 'lainnya'
+	end as provider,
+	bulan_lahir,
+	pengguna_aktif,
+	count(1) as total
+from rakamin_customer
+group by 1,2,3
+order by 1,2;
+
+--7. Having Function
+---------------------
+--Total customers based on providers with total_customer > 20
+select 
+	case when telepon like '62852%' then 'telkomsel'
+	     when telepon like '62878%' then 'xl'
+	     when telepon like '62896%' then '3'
+	     else 'lainnya'
+	end as provider,
+	count(1) as total_customer
+from rakamin_customer
+group by 1
+having count(1) > 20;
+--Total customers based on providers who are > 16 years old and total_customer > 20
+select 
+	case when telepon like '62852%' then 'telkomsel'
+		 when telepon like '62878%' then 'xl'
+		 when telepon like '62896%' then '3'
+		 else 'lainnya'
+	end as provider,
+	count(1) as total_customer
+from rakamin_customer
+where umur > 16
+group by 1
+having count(1) > 20;
