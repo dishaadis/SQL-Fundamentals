@@ -17,10 +17,10 @@ The repository is structured as follows:
 
 ## Data
 This project uses the RakaFood dataset, which contains four tables, namely:
-1. rakamin_customer
-2. rakamin_customer_address
-3. rakamin_merchant
-4. rakamin_order
+1. rakamin_customer.csv
+2. rakamin_customer_address.csv
+3. rakamin_merchant.csv
+4. rakamin_order.csv
 
 ## Entity Relationship Diagram (ERD)
 <p align="justify">
