@@ -1,11 +1,21 @@
 # SQL-Fundamentals
 
-## Background
+## Project Description
 <p align="justify">
 Modern organizations often have large and complex volumes of data that need to be managed efficiently. The data is often scattered across multiple sources and requires effective integration, analysis and processing. In facing this challenge, the fundamental SQL project is the right solution. SQL projects are critical to optimizing management data, integrating data sources, facilitating analysis, and ensuring data security and compliance. By using the SQL language efficiently and effectively, organizations can manage and utilize their data to support sound decision-making and achieve desired business objectives. Through a fundamental SQL project, the main goal is to manage data in a structured and organized way so that information can be accessed, manipulated, and retrieved easily. This project involves various aspects, from creating and managing tables, relationships between tables, selecting data, arithmetic operations and filtering based on certain criteria.
 </p>
 
-## Dataset
+## Repository Structure
+<p align="justify">
+The repository is structured as follows:
+
+  * **Data**/              : This directory contains the data used for analysis.
+  * **1. Basic Queries**   : Contains the functions Create, Select, Limit, Where, Order By, Arithmetic, Insert, Update, Delete and CTE,
+  * **2. Simple Queries**  : Contains Advanced Filtering, Logical Operator, Case When Function, Aggregation Function, Group By and Having Function. 
+  * **3. Complex Queries** : Contains Alias, Sub Query, Join and CTE.
+</p>
+
+## Data
 This project uses the RakaFood dataset, which contains four tables, namely:
 1. rakamin_customer
 2. rakamin_customer_address
